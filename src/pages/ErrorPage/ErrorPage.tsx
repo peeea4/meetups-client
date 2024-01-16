@@ -1,3 +1,5 @@
+import { PageWrapper } from './styles';
+
 export const ErrorPage = () => {
-  return <div>404 Not Found</div>;
+    return <PageWrapper>404 Not Found</PageWrapper>;
 };
