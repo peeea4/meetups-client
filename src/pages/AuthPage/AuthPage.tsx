@@ -3,13 +3,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { signIn, signUp } from '../../api/auth';
+import { Button } from '../../components/Button/Button';
 import { Input } from '../../components/Input/Input';
 import { useAppDispatch } from '../../hooks/store';
 import { login } from '../../store/slices/authSlice';
-import { AuthResponse } from '../../types/auth';
 import {
     AuthBlockWrapper,
-    Button,
     Form,
     PageWrapper,
     TabListWrapper,
@@ -22,6 +21,7 @@ export const AuthPage = () => {
     const [name, setName] = useState('');
     const [lastName, setLastName] = useState('');
     const [userName, setUsername] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const [isSignInTab, setIsSignInTab] = useState(true);
 
@@ -30,29 +30,35 @@ export const AuthPage = () => {
     const navigate = useNavigate();
 
     const submitSignInForm = async () => {
+        setIsLoading(true);
+
         signIn({ email, password }).then(({ data, status }) => {
             if (status === 200) {
                 dispatch(login());
-                Cookies.set('token', data.token, {
+                Cookies.set('accessToken', data.token, {
                     expires: 1 / 24,
                 });
                 Cookies.set('refreshToken', data.refreshToken);
                 navigate('/');
             }
+            setIsLoading(false);
         });
     };
 
     const submitSignUpForm = async () => {
+        setIsLoading(true);
         signUp({ email, password, name, lastName, userName }).then(
             ({ data, status }) => {
                 if (status === 200) {
                     dispatch(login());
-                    Cookies.set('token', data.token, {
-                        expires: 1 / 24,
+                    Cookies.remove('accessToken');
+                    Cookies.set('accessToken', data.token, {
+                        expires: 1,
                     });
                     Cookies.set('refreshToken', data.refreshToken);
                     navigate('/');
                 }
+                setIsLoading(false);
             }
         );
     };
@@ -65,7 +71,7 @@ export const AuthPage = () => {
 
     useEffect(() => {
         const readToken = () => {
-            const token = Cookies.get('token');
+            const token = Cookies.get('accessToken');
             if (token) {
                 dispatch(login());
                 navigate('/');
@@ -106,7 +112,9 @@ export const AuthPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             label="Password"
                         />
-                        <Button onClick={submitSignInForm}>Sign In</Button>
+                        <Button onClick={submitSignInForm} disabled={isLoading}>
+                            Sign In
+                        </Button>
                     </Form>
                 )}
                 {!isSignInTab && (
@@ -141,7 +149,9 @@ export const AuthPage = () => {
                             onChange={(e) => setUsername(e.target.value)}
                             label="Username*"
                         />
-                        <Button onClick={submitSignUpForm}>Sign Up</Button>
+                        <Button onClick={submitSignUpForm} disabled={isLoading}>
+                            Sign Up
+                        </Button>
                     </Form>
                 )}
             </AuthBlockWrapper>
