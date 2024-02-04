@@ -3,7 +3,6 @@ import { IUser } from './user';
 export type AuthResponse = {
     userData: IUser;
     accessToken: string;
-    refreshToken: string;
 };
 
 export type SignUpArg = {

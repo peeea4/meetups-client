@@ -1,18 +1,37 @@
 import styled from 'styled-components';
 
-export const StyledUserCard = styled.div`
+export const ModalWrapper = styled.div`
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+export const ModalContent = styled.div`
     display: flex;
     flex-direction: column;
     gap: 12px;
     align-items: flex-start;
-    padding: 12px 24px;
+
+    padding: 32px;
+
+    background-color: #323031;
+    width: max-content;
+    border-radius: 12px;
 `;
 
 export const Item = styled.div`
     display: flex;
     flex-direction: column;
-    padding: 12px;
     gap: 12px;
+    background-color: #323031;
 `;
 
 export const FieldTitle = styled.div`
@@ -33,5 +52,10 @@ export const Row = styled.div`
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    border-bottom: 1px solid white;
+`;
+
+export const StylesMeetupsList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 `;

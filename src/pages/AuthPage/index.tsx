@@ -1,10 +1,10 @@
 import Cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { signIn, signUp } from '../../api/auth';
-import { Button } from '../../components/Button/Button';
-import { Input } from '../../components/Input/Input';
+import { Button } from '../../components/base/Button/Button';
+import { Input } from '../../components/base/Input/Input';
 import { useAppDispatch } from '../../hooks/store';
 import { login } from '../../store/slices/authSlice';
 import {
@@ -29,44 +29,53 @@ export const AuthPage = () => {
 
     const navigate = useNavigate();
 
-    const submitSignInForm = async () => {
+    const submitSignInForm = useCallback(() => {
         setIsLoading(true);
 
-        signIn({ email, password }).then(({ data, status }) => {
-            if (status === 200) {
-                dispatch(login());
-                Cookies.set('accessToken', data.token, {
-                    expires: 1 / 24,
-                });
-                Cookies.set('refreshToken', data.refreshToken);
-                navigate('/');
-            }
-            setIsLoading(false);
-        });
-    };
+        signIn({ email, password })
+            .then(({ data, status }) => {
+                if (status === 200) {
+                    dispatch(login());
+                    Cookies.set('accessToken', data.token, {
+                        expires: 1 / 24,
+                    });
 
-    const submitSignUpForm = async () => {
+                    navigate('/');
+                }
+                setIsLoading(false);
+            })
+            .catch(() => {
+                setIsLoading(false);
+            });
+    }, [dispatch, email, navigate, password]);
+
+    const submitSignUpForm = useCallback(() => {
         setIsLoading(true);
-        signUp({ email, password, name, lastName, userName }).then(
-            ({ data, status }) => {
+        signUp({ email, password, name, lastName, userName })
+            .then(({ data, status }) => {
                 if (status === 200) {
                     dispatch(login());
                     Cookies.remove('accessToken');
                     Cookies.set('accessToken', data.token, {
                         expires: 1,
                     });
-                    Cookies.set('refreshToken', data.refreshToken);
+
                     navigate('/');
                 }
                 setIsLoading(false);
-            }
-        );
-    };
+            })
+            .catch(() => {
+                setIsLoading(false);
+            });
+    }, [dispatch, email, lastName, name, navigate, password, userName]);
 
     const handleTabClick = (value: boolean) => {
         setIsSignInTab(value);
         setEmail('');
         setPassword('');
+        setName('');
+        setLastName('');
+        setUsername('');
     };
 
     useEffect(() => {
@@ -79,7 +88,53 @@ export const AuthPage = () => {
         };
 
         readToken();
-    }, []);
+    }, [dispatch, navigate]);
+
+    const isSignInFieldsFilled = useMemo(
+        () => !!email?.length && !!password?.length,
+        [email, password]
+    );
+
+    const isSignUpFieldsFilled = useMemo(
+        () =>
+            !!email?.length &&
+            !!password?.length &&
+            !!name?.length &&
+            !!lastName?.length &&
+            !!userName?.length,
+        [
+            email?.length,
+            lastName?.length,
+            name?.length,
+            password?.length,
+            userName?.length,
+        ]
+    );
+
+    const submitFormByEnter = useCallback(
+        (event: KeyboardEvent) => {
+            if (event.key === 'Enter' && isSignInFieldsFilled) {
+                submitSignInForm();
+            }
+            if (event.key === 'Enter' && isSignUpFieldsFilled) {
+                submitSignUpForm();
+            }
+        },
+        [
+            isSignInFieldsFilled,
+            isSignUpFieldsFilled,
+            submitSignInForm,
+            submitSignUpForm,
+        ]
+    );
+
+    useEffect(() => {
+        document.addEventListener('keypress', submitFormByEnter);
+
+        return () => {
+            document.removeEventListener('keypress', submitFormByEnter);
+        };
+    }, [submitFormByEnter]);
 
     return (
         <PageWrapper>
@@ -107,12 +162,15 @@ export const AuthPage = () => {
                             label="Email"
                         />
                         <Input
-                            type="text"
+                            type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             label="Password"
                         />
-                        <Button onClick={submitSignInForm} disabled={isLoading}>
+                        <Button
+                            onClick={submitSignInForm}
+                            disabled={isLoading || !isSignInFieldsFilled}
+                        >
                             Sign In
                         </Button>
                     </Form>
@@ -123,33 +181,36 @@ export const AuthPage = () => {
                             type="text"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            label="Email*"
+                            label="Email"
                         />
                         <Input
                             type="text"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            label="Password*"
+                            label="Password"
                         />
                         <Input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            label="Name*"
+                            label="Name"
                         />
                         <Input
                             type="text"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
-                            label="Surname*"
+                            label="Surname"
                         />
                         <Input
                             type="text"
                             value={userName}
                             onChange={(e) => setUsername(e.target.value)}
-                            label="Username*"
+                            label="Username"
                         />
-                        <Button onClick={submitSignUpForm} disabled={isLoading}>
+                        <Button
+                            onClick={submitSignUpForm}
+                            disabled={isLoading || !isSignUpFieldsFilled}
+                        >
                             Sign Up
                         </Button>
                     </Form>

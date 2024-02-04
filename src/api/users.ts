@@ -11,13 +11,3 @@ export const getUserById = (id: number) => {
         },
     });
 };
-
-export const registerForMeetup = (meetupId: number) => {
-    const token = Cookies.get('accessToken');
-
-    return api.get(`/meetups/${meetupId}/users`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-};

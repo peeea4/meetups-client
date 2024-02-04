@@ -7,7 +7,7 @@ export const PageWrapper = styled.div`
     justify-content: center;
     align-items: center;
     background-color: #323031;
-    height: 100%;
+    min-height: 100vh;
 `;
 
 export const AuthBlockWrapper = styled.div`
@@ -38,5 +38,6 @@ export const TabWrapper = styled.div<{ $isActive?: boolean }>`
 export const Form = styled.div`
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 24px;
 `;

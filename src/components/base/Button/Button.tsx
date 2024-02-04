@@ -8,11 +8,19 @@ type ButtonProps = {
     disabled?: boolean;
 };
 
-export const Button: FC<ButtonProps> = ({ children, onClick, disabled }) => {
+export const Button: FC<ButtonProps> = ({
+    children,
+    onClick,
+    disabled = false,
+}) => {
     const clickHandler = () => {
         if (!disabled) {
             onClick();
         }
     };
-    return <StyledButton onClick={clickHandler}>{children}</StyledButton>;
+    return (
+        <StyledButton onClick={clickHandler} $disabled={disabled}>
+            {children}
+        </StyledButton>
+    );
 };
