@@ -1,16 +1,16 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 
-import { AppRoutes } from './components/AppRoutes/AppRoutes';
+import { AppRouter } from './components/AppRouter/AppRouter';
 import { store } from './store/store';
 import GlobalStyles from './styles/global';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <GlobalStyles />
-            <AppRoutes />
-        </Provider>
-    </React.StrictMode>
+    <Provider store={store}>
+        <GlobalStyles />
+        <BrowserRouter>
+            <AppRouter />
+        </BrowserRouter>
+    </Provider>
 );
